@@ -1,0 +1,27 @@
+# Multimodal classification config
+# Overrides default.yaml for multimodal modality
+
+modality: "multimodal"
+
+data:
+  dataset_name: "TBD"       # e.g. "coco_captions", "flickr30k"
+  image_size: 224
+  max_text_length: 77
+  batch_size: 32
+
+models:
+  clip:
+    name: "openai/clip-vit-base-patch32"
+    pretrained: true
+  
+  zero_shot:
+    prompt_template: "a photo of a {}"
+    class_names: []           # Fill with dataset class names
+  
+  few_shot:
+    num_shots: [1, 4, 8, 16]  # Number of examples per class
+    method: "linear_probe"     # "linear_probe", "adapter", "prompt_tuning"
+
+training:
+  epochs: 20
+  learning_rate: 1.0e-5

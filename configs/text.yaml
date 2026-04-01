@@ -1,0 +1,28 @@
+# Text classification config
+# Overrides default.yaml for text modality
+
+modality: "text"
+
+data:
+  dataset_name: "TBD"       # e.g. "ag_news", "dbpedia_14", "emotion"
+  max_length: 256
+  batch_size: 32
+  tokenizer: "bert-base-uncased"
+
+models:
+  rnn:
+    type: "lstm"             # "lstm", "gru", "bilstm"
+    embedding_dim: 300
+    hidden_dim: 256
+    num_layers: 2
+    dropout: 0.3
+    bidirectional: true
+    pretrained_embeddings: "glove"  # "glove", "word2vec", null
+  transformer:
+    name: "bert-base-uncased"       # or "distilbert", "roberta-base"
+    pretrained: true
+    freeze_backbone: false
+
+training:
+  epochs: 10
+  learning_rate: 2.0e-5

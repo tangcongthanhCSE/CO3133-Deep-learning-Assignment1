@@ -1,0 +1,61 @@
+# ===== Python =====
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+dist/
+build/
+*.egg
+
+# ===== Virtual Environment =====
+.venv/
+venv/
+env/
+ENV/
+
+# ===== Jupyter Notebooks =====
+.ipynb_checkpoints/
+
+# ===== IDE =====
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# ===== OS =====
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ===== Data (large files – use DVC or Git LFS) =====
+data/raw/
+data/processed/
+*.csv
+*.tsv
+*.parquet
+*.h5
+*.hdf5
+
+# ===== Model checkpoints =====
+outputs/checkpoints/
+*.pt
+*.pth
+*.ckpt
+*.safetensors
+
+# ===== Logs =====
+outputs/logs/
+*.log
+wandb/
+runs/
+
+# ===== Outputs =====
+outputs/figures/
+outputs/results/
+
+# ===== Temporary =====
+*.tmp
+*.bak
+_assignment_text.txt
