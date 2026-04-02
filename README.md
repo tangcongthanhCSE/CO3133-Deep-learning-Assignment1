@@ -22,40 +22,25 @@ The assignment focuses on classification tasks across **three data modalities**:
 
 ```
 BTL1/
-├── configs/                    # Hyperparameter & experiment configs (YAML/JSON)
-├── data/
-│   ├── raw/                    # Original unprocessed datasets
-│   │   ├── image/
-│   │   ├── text/
-│   │   └── multimodal/
-│   └── processed/              # Cleaned & preprocessed data
-│       ├── image/
-│       ├── text/
-│       └── multimodal/
-├── docs/                       # GitHub Pages landing page
-│   └── assets/
-├── extensions/                 # Bonus work (40% of grade)
-│   ├── interpretability/       # Grad-CAM, attention visualization, saliency
-│   ├── error_analysis/         # Confusion analysis, hard examples
-│   ├── augmentation/           # RandAugment, MixUp, CutMix, back-translation
-│   ├── ensemble/               # CNN+ViT, RNN+Transformer ensembles
-│   └── app_demo/               # Gradio / Streamlit demo app
-├── notebooks/                  # Jupyter notebooks for EDA & experiments
+├── configs/                    # Hyperparameter & experiment configs (YAML)
+│   ├── default.yaml
+│   ├── image.yaml
+│   ├── text.yaml
+│   └── multimodal.yaml
+├── data/raw/                   # Raw datasets (git-ignored, download separately)
 │   ├── image/
 │   ├── text/
 │   └── multimodal/
-├── outputs/
-│   ├── checkpoints/            # Saved model weights
-│   │   ├── image/
-│   │   ├── text/
-│   │   └── multimodal/
-│   ├── logs/                   # TensorBoard / training logs
-│   ├── figures/                # Generated plots & visualizations
-│   └── results/                # Metrics, tables (CSV/JSON)
-├── reports/                    # Final reports & presentation materials
-│   ├── figures/
-│   └── slides/
-├── scripts/                    # Shell/Python runner scripts
+├── eda/                        # Exploratory Data Analysis
+│   ├── image/
+│   │   ├── notebooks/          # EDA Jupyter notebooks for image dataset
+│   │   └── images/             # EDA output plots & visualizations
+│   ├── text/
+│   │   ├── notebooks/
+│   │   └── images/
+│   └── multimodal/
+│       ├── notebooks/
+│       └── images/
 ├── src/                        # Main source code
 │   ├── image/
 │   │   ├── models/             # CNN & ViT model definitions
@@ -68,12 +53,29 @@ BTL1/
 │   │   ├── training/
 │   │   └── evaluation/
 │   ├── multimodal/
-│   │   ├── models/             # Zero-shot & few-shot models (e.g. CLIP)
+│   │   ├── models/             # Zero-shot & few-shot models (CLIP)
 │   │   ├── data/
 │   │   ├── training/
 │   │   └── evaluation/
-│   └── utils/                  # Shared utilities (logging, visualization, etc.)
-├── tests/                      # Unit & integration tests
+│   └── utils/                  # Shared utilities
+├── results/                    # Experiment result images & figures
+│   ├── image/                  # Plots, confusion matrices for image models
+│   ├── text/                   # Plots, confusion matrices for text models
+│   └── multimodal/             # Plots for multimodal models
+├── outputs/checkpoints/        # Saved model weights (git-ignored)
+│   ├── image/
+│   ├── text/
+│   └── multimodal/
+├── extensions/                 # Bonus work (40% of grade)
+│   ├── app_demo/               # FastAPI web inference demo
+│   ├── interpretability/       # Grad-CAM, attention visualization
+│   ├── error_analysis/         # Confusion analysis, hard examples
+│   ├── augmentation/           # RandAugment, MixUp, back-translation
+│   └── ensemble/               # Model combination experiments
+├── reports/slides/             # Presentation slides
+├── docs/                       # GitHub Pages landing page
+│   ├── index.html
+│   └── assignment1.html
 ├── .gitignore
 ├── requirements.txt
 ├── setup.py

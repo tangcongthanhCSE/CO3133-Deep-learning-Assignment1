@@ -37,9 +37,12 @@ nlpaug>=1.1.0
 captum>=0.7.0
 grad-cam>=1.5.0
 
-# ===== App Demo (optional) =====
+# ===== App Demo =====
+fastapi>=0.104.0
+uvicorn[standard]>=0.24.0
+python-multipart>=0.0.6
 # gradio>=4.0.0
-# streamlit>=1.28.0
+streamlit>=1.28.0
 
 # ===== Utilities =====
 tqdm>=4.66.0
