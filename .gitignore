@@ -39,7 +39,9 @@ data/processed/
 *.hdf5
 
 # ===== Model checkpoints =====
-# outputs/checkpoints/
+=======
+outputs/checkpoints/
+>>>>>>> 3d9f6040769554ad570597241caac626047f4dd4
 *.pt
 *.pth
 *.ckpt
