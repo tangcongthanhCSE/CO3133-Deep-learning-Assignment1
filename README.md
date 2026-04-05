@@ -165,3 +165,5 @@ pip install -r requirements.txt
 ## 📄 License
 
 This project is for academic purposes only — HCMUT, CO3133.
+
+uvicorn extensions.app_demo.main:app --reload --port 8000

@@ -26,7 +26,7 @@ from PIL import Image
 logger = logging.getLogger(__name__)
 
 # ── Paths ─────────────────────────────────────────────────────────────
-_PROJECT_ROOT = Path(__file__).resolve().parents[4]   # …/BTL1/
+_PROJECT_ROOT = Path(__file__).resolve().parents[3]   # …/BTL1/
 MODELS_DIR = _PROJECT_ROOT / "models" / "image_dataset"
 
 MODEL_REGISTRY = {

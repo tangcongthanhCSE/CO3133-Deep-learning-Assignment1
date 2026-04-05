@@ -30,7 +30,7 @@ import torch.nn as nn
 logger = logging.getLogger(__name__)
 
 # ── Paths ─────────────────────────────────────────────────────────────
-_PROJECT_ROOT = Path(__file__).resolve().parents[4]
+_PROJECT_ROOT = Path(__file__).resolve().parents[3]
 MODELS_DIR = _PROJECT_ROOT / "models" / "text_dataset"
 
 # Emotion labels (integer index matches training label encoding)

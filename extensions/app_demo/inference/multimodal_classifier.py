@@ -26,7 +26,7 @@ from PIL import Image
 logger = logging.getLogger(__name__)
 
 # ── Paths ─────────────────────────────────────────────────────────────
-_PROJECT_ROOT = Path(__file__).resolve().parents[4]
+_PROJECT_ROOT = Path(__file__).resolve().parents[3]
 _FEW_SHOT_CLF_PATH = _PROJECT_ROOT / "Model" / "Multimodal_Model" / "food101_fewshot.pkl"
 
 MODEL_REGISTRY = {
