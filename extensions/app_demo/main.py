@@ -64,8 +64,13 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_methods=["*"],
+    allow_origins=[
+        "http://localhost:8000",
+        "http://127.0.0.1:8000",
+        # GitHub Pages URL — update <username> and <repo> if different
+        "https://tangcongthanhcse.github.io",
+    ],
+    allow_methods=["GET", "POST"],
     allow_headers=["*"],
 )
 
@@ -94,7 +99,7 @@ async def health():
 @app.post("/api/predict/image")
 async def predict_image(
     file: UploadFile = File(...),
-    model: str = Form("resnet50"),
+    model: str = Form("resnet18"),
 ):
     if not image_clf:
         raise HTTPException(503, "Image classifier not loaded")
@@ -113,7 +118,7 @@ async def predict_image(
 @app.post("/api/predict/text")
 async def predict_text(
     text: str = Form(...),
-    model: str = Form("bert"),
+    model: str = Form("distilbert"),
 ):
     if not text_clf:
         raise HTTPException(503, "Text classifier not loaded")

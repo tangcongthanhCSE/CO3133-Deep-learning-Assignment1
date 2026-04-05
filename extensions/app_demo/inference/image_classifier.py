@@ -1,121 +1,148 @@
 """
 Image Classification Inference Module
 ======================================
-Supports CNN (ResNet, EfficientNet) and ViT families.
+Intel Image Classification — 6 scene classes
+Models: ResNet18 (fine-tuned) | ViT-B/16 (fine-tuned)
 
-HOW TO INTEGRATE YOUR TRAINED MODEL:
-1. Update `MODEL_REGISTRY` with your checkpoint paths
-2. Set `LABELS` to your dataset's class names
-3. Adjust `transform` if you used different preprocessing
+Checkpoints expected at:
+  models/image_dataset/resnet18_intel_best.pth
+  models/image_dataset/ViT_intel_best.pth
+
+Each checkpoint is a dict saved by torch.save() with keys:
+  'epoch', 'model_state_dict', 'optimizer_state_dict', 'best_acc'
 """
 
 import io
 import time
 import logging
-from typing import Optional
+from pathlib import Path
 
-import numpy as np
+import torch
+import torch.nn as nn
+from torchvision import transforms
+from torchvision.models import resnet18, ResNet18_Weights, vit_b_16, ViT_B_16_Weights
 from PIL import Image
 
 logger = logging.getLogger(__name__)
 
-# ──────────────────────────────────────────────────────────────────────
-# CONFIGURATION — Edit these when you have trained models
-# ──────────────────────────────────────────────────────────────────────
+# ── Paths ─────────────────────────────────────────────────────────────
+_PROJECT_ROOT = Path(__file__).resolve().parents[4]   # …/BTL1/
+MODELS_DIR = _PROJECT_ROOT / "models" / "image_dataset"
+
 MODEL_REGISTRY = {
-    "resnet50":       {"checkpoint": None, "arch": "resnet50"},
-    "efficientnet":   {"checkpoint": None, "arch": "efficientnet_b0"},
-    "vit":            {"checkpoint": None, "arch": "vit_base_patch16_224"},
+    "resnet18": {
+        "checkpoint": MODELS_DIR / "resnet18_intel_best.pth",
+        "arch": "resnet18",
+    },
+    "vit": {
+        "checkpoint": MODELS_DIR / "ViT_intel_best.pth",
+        "arch": "vit_b_16",
+    },
 }
 
-# Replace with your actual class labels
-LABELS: list[str] = [
-    "Class_0", "Class_1", "Class_2", "Class_3", "Class_4",
-    "Class_5", "Class_6", "Class_7", "Class_8", "Class_9",
-]
+# Intel Image Classification — 6 scene labels (same order as ImageFolder's sorted classes)
+LABELS = ["buildings", "forest", "glacier", "mountain", "sea", "street"]
+NUM_CLASSES = len(LABELS)
+
+# Inference transform — identical to the 'test' transform used during training
+INFER_TRANSFORM = transforms.Compose([
+    transforms.Resize((224, 224)),
+    transforms.ToTensor(),
+    transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]),
+])
+
+
+# ── Model builders ─────────────────────────────────────────────────────
+def _build_resnet18() -> nn.Module:
+    model = resnet18(weights=ResNet18_Weights.DEFAULT)
+    model.fc = nn.Linear(model.fc.in_features, NUM_CLASSES)
+    return model
+
+
+def _build_vit() -> nn.Module:
+    model = vit_b_16(weights=ViT_B_16_Weights.DEFAULT)
+    model.heads.head = nn.Linear(model.heads.head.in_features, NUM_CLASSES)
+    return model
+
+
+_BUILDERS = {"resnet18": _build_resnet18, "vit": _build_vit}
+
 
 class ImageClassifier:
-    """Unified image classifier that wraps CNN and ViT models."""
+    """Loads ResNet18 / ViT-B/16 checkpoints and runs inference on raw image bytes."""
 
     def __init__(self):
         self._models: dict = {}
-        self._available_models = list(MODEL_REGISTRY.keys())
-        logger.info("ImageClassifier initialised. Available models: %s", self._available_models)
+        self._available = list(MODEL_REGISTRY.keys())
+        logger.info("ImageClassifier initialised. Available models: %s", self._available)
 
-    # ── Public API ──────────────────────────────────────────────────
     @property
     def available_models(self) -> list[str]:
-        return self._available_models
+        return self._available
 
-    def load_model(self, model_name: str) -> bool:
-        """
-        Load a model into memory. Returns True on success.
-        
-        TODO: Replace the mock implementation below with real model loading:
-        
-            import torch, torchvision.models as models
-            
-            weights = models.ResNet50_Weights.DEFAULT
-            model = models.resnet50(weights=weights)
-            
-            # Load your fine-tuned weights
-            state_dict = torch.load(checkpoint_path, map_location="cpu")
-            model.load_state_dict(state_dict)
-            model.eval()
-            
-            self._models[model_name] = {"model": model, "transform": weights.transforms()}
-        """
-        if model_name not in MODEL_REGISTRY:
+    def load_model(self, name: str) -> bool:
+        """Load a checkpoint into memory. Returns True on success."""
+        if name in self._models:
+            return True
+        if name not in MODEL_REGISTRY:
+            logger.error("Unknown image model '%s'", name)
             return False
 
-        cfg = MODEL_REGISTRY[model_name]
-        logger.info("Loading image model '%s' (arch=%s, ckpt=%s)", model_name, cfg["arch"], cfg["checkpoint"])
+        cfg = MODEL_REGISTRY[name]
+        ckpt_path = cfg["checkpoint"]
 
-        # ★ MOCK — replace with real loading logic above ★
-        self._models[model_name] = {"loaded": True, "arch": cfg["arch"]}
+        if not ckpt_path.exists():
+            logger.error(
+                "Checkpoint not found: %s\n"
+                "Train the model and save it to that path.",
+                ckpt_path,
+            )
+            return False
+
+        model = _BUILDERS[name]()
+        checkpoint = torch.load(str(ckpt_path), map_location="cpu", weights_only=False)
+        # Checkpoint saved as dict; fall back to raw state_dict if needed
+        state_dict = checkpoint.get("model_state_dict", checkpoint)
+        model.load_state_dict(state_dict)
+        model.eval()
+
+        self._models[name] = model
+        logger.info("Loaded image model '%s' (arch=%s) from %s", name, cfg["arch"], ckpt_path)
         return True
 
     def predict(self, image_bytes: bytes, model_name: str) -> dict:
         """
         Run inference on raw image bytes.
-        
+
         Returns:
             {
               "model": str,
-              "predictions": [{"label": str, "confidence": float}, ...],
+              "predictions": [{"label": str, "confidence": float}, ...],   # sorted by confidence
               "inference_time_ms": float,
             }
-
-        TODO: Replace mock with real inference:
-        
-            from torchvision import transforms
-            img = Image.open(io.BytesIO(image_bytes)).convert("RGB")
-            tensor = self._models[model_name]["transform"](img).unsqueeze(0)
-            with torch.no_grad():
-                logits = self._models[model_name]["model"](tensor)
-                probs = torch.softmax(logits, dim=1)[0]
-            top_indices = probs.argsort(descending=True)
         """
         if model_name not in self._models:
-            self.load_model(model_name)
+            if not self.load_model(model_name):
+                raise RuntimeError(f"Could not load image model '{model_name}'")
 
+        model = self._models[model_name]
         start = time.perf_counter()
 
-        # ★ MOCK — replace with real inference ★
         img = Image.open(io.BytesIO(image_bytes)).convert("RGB")
-        n_classes = len(LABELS)
-        probs = np.random.dirichlet(np.ones(n_classes))
-        sorted_idx = np.argsort(probs)[::-1]
+        tensor = INFER_TRANSFORM(img).unsqueeze(0)   # [1, 3, 224, 224]
+
+        with torch.no_grad():
+            logits = model(tensor)                    # [1, 6]
+            probs = torch.softmax(logits, dim=1)[0]   # [6]
 
         elapsed = (time.perf_counter() - start) * 1000
-
-        predictions = [
-            {"label": LABELS[i], "confidence": round(float(probs[i]), 4)}
-            for i in sorted_idx
-        ]
+        sorted_idx = probs.argsort(descending=True).tolist()
 
         return {
             "model": model_name,
-            "predictions": predictions,
+            "predictions": [
+                {"label": LABELS[i], "confidence": round(probs[i].item(), 4)}
+                for i in sorted_idx
+            ],
             "inference_time_ms": round(elapsed, 2),
         }

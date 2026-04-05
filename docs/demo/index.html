@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DL Inference Demo — CO3133</title>
+    <meta name="description" content="Classification inference demo for Image, Text, and Multimodal models.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./style.css">
+    <style>
+        .back-bar {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            height: 36px;
+            background: #0b1120;
+            border-bottom: 1px solid #1e2d4a;
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            z-index: 200;
+            font-size: 0.78rem;
+        }
+        .back-bar a {
+            color: #38bdf8;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .back-bar a:hover { text-decoration: underline; }
+        /* Push content down to account for back bar */
+        .sidebar { top: 36px; min-height: calc(100vh - 36px); }
+        .main-content { padding-top: 36px; }
+    </style>
+</head>
+<body>
+
+<!-- ═══════════════════ BACK BAR ═══════════════════ -->
+<div class="back-bar">
+    <a href="../assignment1.html">← Back to Assignment 1</a>
+</div>
+
+<!-- ═══════════════════ SIDEBAR ═══════════════════ -->
+<aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+        <div class="logo">
+            <span class="logo-icon">⚡</span>
+            <div>
+                <h1>DL Inference</h1>
+                <p class="logo-sub">CO3133 · Assignment 1</p>
+            </div>
+        </div>
+    </div>
+
+    <nav class="sidebar-nav">
+        <button class="nav-btn active" data-tab="image" id="nav-image">
+            <span class="nav-icon">🖼️</span>
+            <span class="nav-label">Image Classification</span>
+            <span class="nav-badge">ResNet18 · ViT</span>
+        </button>
+        <button class="nav-btn" data-tab="text" id="nav-text">
+            <span class="nav-icon">📝</span>
+            <span class="nav-label">Text Classification</span>
+            <span class="nav-badge">BiLSTM · DistilBERT</span>
+        </button>
+        <button class="nav-btn" data-tab="multimodal" id="nav-multimodal">
+            <span class="nav-icon">🔗</span>
+            <span class="nav-label">Multimodal</span>
+            <span class="nav-badge">Zero · Few-shot</span>
+        </button>
+    </nav>
+
+    <div class="sidebar-footer">
+        <div class="status-indicator" id="server-status">
+            <span class="status-dot"></span>
+            <span class="status-text">Checking server…</span>
+        </div>
+        <p class="footer-text">HCMUT — VNUHCM</p>
+    </div>
+</aside>
+
+<!-- ═══════════════════ MAIN CONTENT ═══════════════════ -->
+<main class="main-content">
+
+    <!-- ─── HEADER ─── -->
+    <header class="topbar">
+        <button class="menu-toggle" id="menu-toggle" aria-label="Toggle menu">☰</button>
+        <h2 class="page-title" id="page-title">Image Classification</h2>
+        <div class="topbar-actions">
+            <span class="chip" id="device-chip">GPU</span>
+        </div>
+    </header>
+
+    <!-- ════════════════ IMAGE TAB ════════════════ -->
+    <section class="tab-panel active" id="tab-image">
+        <div class="workspace">
+            <div class="card input-card">
+                <div class="card-header">
+                    <h3>📥 Input</h3>
+                </div>
+                <div class="card-body">
+                    <div class="upload-zone" id="image-drop-zone">
+                        <input type="file" id="image-file-input" accept="image/*" hidden>
+                        <div class="upload-placeholder" id="image-upload-placeholder">
+                            <span class="upload-icon">📁</span>
+                            <p>Drag & drop image here</p>
+                            <p class="upload-hint">or click to browse · PNG, JPG, JPEG</p>
+                        </div>
+                        <img id="image-preview" class="image-preview hidden" alt="Preview">
+                    </div>
+                    <button class="btn-clear hidden" id="image-clear-btn">✕ Clear image</button>
+
+                    <label class="field-label">Model Architecture</label>
+                    <select id="image-model-select" class="select-field">
+                        <option value="resnet18">CNN — ResNet-18</option>
+                        <option value="vit">ViT — Base/16</option>
+                    </select>
+
+                    <button class="btn-primary" id="image-predict-btn">
+                        <span class="btn-icon">🔮</span> Run Prediction
+                    </button>
+                </div>
+            </div>
+
+            <div class="card output-card">
+                <div class="card-header">
+                    <h3>📤 Results</h3>
+                    <span class="latency-badge hidden" id="image-latency"></span>
+                </div>
+                <div class="card-body">
+                    <div class="empty-state" id="image-empty-state">
+                        <span class="empty-icon">🎯</span>
+                        <p>Upload an image and click <strong>Run Prediction</strong></p>
+                    </div>
+                    <div class="results-container hidden" id="image-results">
+                        <div class="top-prediction" id="image-top-prediction"></div>
+                        <div class="chart-container" id="image-chart"></div>
+                        <table class="results-table" id="image-table">
+                            <thead><tr><th>#</th><th>Class</th><th>Confidence</th><th>Bar</th></tr></thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                    <div class="loading-state hidden" id="image-loading">
+                        <div class="spinner"></div>
+                        <p>Running inference…</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ════════════════ TEXT TAB ════════════════ -->
+    <section class="tab-panel" id="tab-text">
+        <div class="workspace">
+            <div class="card input-card">
+                <div class="card-header"><h3>📥 Input</h3></div>
+                <div class="card-body">
+                    <label class="field-label">Text to Classify</label>
+                    <textarea id="text-input" class="textarea-field" rows="7"
+                        placeholder="Enter a sentence expressing an emotion, e.g.: I feel so happy and grateful today…"></textarea>
+                    <div class="char-count"><span id="text-char-count">0</span> characters</div>
+
+                    <label class="field-label">Model Architecture</label>
+                    <select id="text-model-select" class="select-field">
+                        <option value="distilbert">Transformer — DistilBERT</option>
+                        <option value="lstm">RNN — BiLSTM (GloVe)</option>
+                    </select>
+
+                    <button class="btn-primary" id="text-predict-btn">
+                        <span class="btn-icon">🔮</span> Run Prediction
+                    </button>
+                </div>
+            </div>
+
+            <div class="card output-card">
+                <div class="card-header">
+                    <h3>📤 Results</h3>
+                    <span class="latency-badge hidden" id="text-latency"></span>
+                </div>
+                <div class="card-body">
+                    <div class="empty-state" id="text-empty-state">
+                        <span class="empty-icon">💬</span>
+                        <p>Enter text and click <strong>Run Prediction</strong></p>
+                    </div>
+                    <div class="results-container hidden" id="text-results">
+                        <div class="top-prediction" id="text-top-prediction"></div>
+                        <div class="chart-container" id="text-chart"></div>
+                        <table class="results-table" id="text-table">
+                            <thead><tr><th>#</th><th>Class</th><th>Confidence</th><th>Bar</th></tr></thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                    <div class="loading-state hidden" id="text-loading">
+                        <div class="spinner"></div>
+                        <p>Running inference…</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ════════════════ MULTIMODAL TAB ════════════════ -->
+    <section class="tab-panel" id="tab-multimodal">
+        <div class="workspace">
+            <div class="card input-card">
+                <div class="card-header"><h3>📥 Input</h3></div>
+                <div class="card-body">
+                    <div class="upload-zone" id="multi-drop-zone">
+                        <input type="file" id="multi-file-input" accept="image/*" hidden>
+                        <div class="upload-placeholder" id="multi-upload-placeholder">
+                            <span class="upload-icon">📁</span>
+                            <p>Drag & drop a food image here</p>
+                            <p class="upload-hint">or click to browse · UPMC Food-101</p>
+                        </div>
+                        <img id="multi-preview" class="image-preview hidden" alt="Preview">
+                    </div>
+                    <button class="btn-clear hidden" id="multi-clear-btn">✕ Clear image</button>
+
+                    <label class="field-label">Text Query / Prompt</label>
+                    <input type="text" id="multi-text-input" class="text-input-field"
+                        placeholder="e.g.: A photo of pizza, a type of food">
+
+                    <label class="field-label">Method</label>
+                    <select id="multi-model-select" class="select-field">
+                        <option value="clip_zero_shot">Zero-shot (CLIP)</option>
+                        <option value="clip_few_shot">Few-shot (CLIP + Linear Probe)</option>
+                    </select>
+
+                    <button class="btn-primary" id="multi-predict-btn">
+                        <span class="btn-icon">🔮</span> Run Prediction
+                    </button>
+                </div>
+            </div>
+
+            <div class="card output-card">
+                <div class="card-header">
+                    <h3>📤 Results</h3>
+                    <span class="latency-badge hidden" id="multi-latency"></span>
+                </div>
+                <div class="card-body">
+                    <div class="empty-state" id="multi-empty-state">
+                        <span class="empty-icon">🔗</span>
+                        <p>Provide both image and text, then click <strong>Run Prediction</strong></p>
+                    </div>
+                    <div class="results-container hidden" id="multi-results">
+                        <div class="top-prediction" id="multi-top-prediction"></div>
+                        <div class="chart-container" id="multi-chart"></div>
+                        <table class="results-table" id="multi-table">
+                            <thead><tr><th>#</th><th>Class</th><th>Confidence</th><th>Bar</th></tr></thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                    <div class="loading-state hidden" id="multi-loading">
+                        <div class="spinner"></div>
+                        <p>Running inference…</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+</main>
+
+<!-- ═══════════════════ TOAST ═══════════════════ -->
+<div class="toast-container" id="toast-container"></div>
+
+<script src="./app.js"></script>
+</body>
+</html>

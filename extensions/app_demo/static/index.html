@@ -27,12 +27,12 @@
         <button class="nav-btn active" data-tab="image" id="nav-image">
             <span class="nav-icon">🖼️</span>
             <span class="nav-label">Image Classification</span>
-            <span class="nav-badge">CNN · ViT</span>
+            <span class="nav-badge">ResNet18 · ViT</span>
         </button>
         <button class="nav-btn" data-tab="text" id="nav-text">
             <span class="nav-icon">📝</span>
             <span class="nav-label">Text Classification</span>
-            <span class="nav-badge">RNN · BERT</span>
+            <span class="nav-badge">BiLSTM · DistilBERT</span>
         </button>
         <button class="nav-btn" data-tab="multimodal" id="nav-multimodal">
             <span class="nav-icon">🔗</span>
@@ -84,8 +84,7 @@
 
                     <label class="field-label">Model Architecture</label>
                     <select id="image-model-select" class="select-field">
-                        <option value="resnet50">CNN — ResNet-50</option>
-                        <option value="efficientnet">CNN — EfficientNet-B0</option>
+                        <option value="resnet18">CNN — ResNet-18</option>
                         <option value="vit">ViT — Base/16</option>
                     </select>
 
@@ -136,10 +135,8 @@
 
                     <label class="field-label">Model Architecture</label>
                     <select id="text-model-select" class="select-field">
-                        <option value="lstm">RNN — LSTM</option>
-                        <option value="bilstm">RNN — BiLSTM</option>
-                        <option value="bert">Transformer — BERT Base</option>
-                        <option value="roberta">Transformer — RoBERTa</option>
+                        <option value="distilbert">Transformer — DistilBERT</option>
+                        <option value="lstm">RNN — BiLSTM (GloVe)</option>
                     </select>
 
                     <button class="btn-primary" id="text-predict-btn">
