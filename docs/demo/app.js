@@ -12,7 +12,7 @@
     //
     // After deploying on Render, replace the URL below with your app URL,
     // e.g. "https://dl-inference-xxxx.onrender.com"
-    const BACKEND_URL = "https://YOUR-APP.onrender.com";
+    const BACKEND_URL = "https://co3133-deep-learning-assignment1.onrender.com";
 
     const isLocal = window.location.hostname === "localhost"
                  || window.location.hostname === "127.0.0.1";
