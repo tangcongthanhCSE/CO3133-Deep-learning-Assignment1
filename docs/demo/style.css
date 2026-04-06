@@ -676,6 +676,104 @@ body {
     to   { opacity: 0; transform: translateX(40px); }
 }
 
+/* ── Hint / Guidance Box ───────────────────────────────────── */
+.hint-box {
+    background: rgba(14, 165, 233, 0.05);
+    border: 1px solid rgba(14, 165, 233, 0.18);
+    border-radius: var(--radius-md);
+    padding: 14px 16px;
+    margin-bottom: 16px;
+}
+
+.hint-header {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    margin-bottom: 10px;
+}
+
+.hint-title {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--text-accent);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+.hint-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 8px;
+}
+
+.hint-tag {
+    font-size: 0.74rem;
+    padding: 3px 10px;
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    color: var(--text-secondary);
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.hint-desc {
+    font-size: 0.76rem;
+    color: var(--text-muted);
+    line-height: 1.55;
+    margin-top: 6px;
+}
+
+.hint-examples {
+    margin-top: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.hint-example {
+    font-size: 0.74rem;
+    padding: 5px 10px;
+    background: var(--bg-input);
+    border-radius: var(--radius-sm);
+    color: var(--text-secondary);
+    border-left: 2px solid var(--border-active);
+    line-height: 1.4;
+    font-style: italic;
+}
+
+.hint-example .hint-label {
+    font-style: normal;
+    font-weight: 700;
+    color: var(--text-accent);
+    margin-left: 6px;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+}
+
+details.hint-details { margin-top: 8px; }
+
+details.hint-details summary {
+    font-size: 0.74rem;
+    color: var(--text-accent);
+    cursor: pointer;
+    user-select: none;
+    list-style: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-weight: 600;
+}
+details.hint-details summary::before {
+    content: '▶';
+    font-size: 0.6rem;
+    transition: var(--transition);
+}
+details.hint-details[open] summary::before { content: '▼'; }
+
+details.hint-details .hint-tags { margin-top: 8px; }
+
 /* ── Utility ───────────────────────────────────────────────── */
 .hidden { display: none !important; }
 

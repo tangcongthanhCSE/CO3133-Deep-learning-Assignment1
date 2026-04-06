@@ -7,16 +7,14 @@
     "use strict";
 
     // ── API Base URL ─────────────────────────────────────────────
-    // Local dev  : same-origin (FastAPI serves both frontend & backend)
+    // Local dev  : FastAPI server at localhost:8000
     // GitHub Pages: calls the deployed Render backend
-    //
-    // After deploying on Render, replace the URL below with your app URL,
-    // e.g. "https://dl-inference-xxxx.onrender.com"
     const BACKEND_URL = "https://co3133-deep-learning-assignment1.onrender.com";
+    const LOCAL_URL   = "http://localhost:8000";
 
     const isLocal = window.location.hostname === "localhost"
                  || window.location.hostname === "127.0.0.1";
-    const API_BASE = isLocal ? "" : BACKEND_URL;
+    const API_BASE = isLocal ? LOCAL_URL : BACKEND_URL;
 
     // ── Helpers ─────────────────────────────────────────────────
     const $ = (sel) => document.querySelector(sel);

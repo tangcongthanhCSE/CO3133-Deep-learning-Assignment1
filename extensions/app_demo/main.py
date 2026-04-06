@@ -31,12 +31,13 @@ image_clf: ImageClassifier | None = None
 text_clf: TextClassifier | None = None
 multimodal_clf: MultimodalClassifier | None = None
 
-STATIC_DIR = Path(__file__).parent / "static"
+STATIC_DIR    = Path(__file__).parent / "static"
+DOCS_DEMO_DIR = Path(__file__).resolve().parents[2] / "docs" / "demo"
 
 
 # ── Lifespan — load models at startup ──────────────────────────────
 @asynccontextmanager
-async def lifespan(app: FastAPI):
+async def lifespan(_app: FastAPI):
     global image_clf, text_clf, multimodal_clf
     logger.info("🚀 Starting inference server …")
 
@@ -44,10 +45,13 @@ async def lifespan(app: FastAPI):
     text_clf = TextClassifier()
     multimodal_clf = MultimodalClassifier()
 
-    # Pre-load default models (optional — can be lazy)
-    # image_clf.load_model("resnet50")
-    # text_clf.load_model("bert")
-    # multimodal_clf.load_model("clip_zero_shot")
+    # Pre-load all models at startup so first request is instant
+    image_clf.load_model("resnet18")
+    image_clf.load_model("vit")
+    text_clf.load_model("lstm")
+    text_clf.load_model("distilbert")
+    multimodal_clf.load_model("clip_zero_shot")
+    multimodal_clf.load_model("clip_few_shot")
 
     logger.info("✅ All classifiers ready.")
     yield
@@ -77,6 +81,10 @@ app.add_middleware(
 
 # ── Serve Frontend ──────────────────────────────────────────────────
 app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
+
+# ── Serve docs/demo (GitHub Pages version) locally at /demo ─────────
+if DOCS_DEMO_DIR.exists():
+    app.mount("/demo", StaticFiles(directory=str(DOCS_DEMO_DIR), html=True), name="demo")
 
 
 @app.get("/")

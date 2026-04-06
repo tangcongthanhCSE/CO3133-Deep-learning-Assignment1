@@ -29,6 +29,10 @@ import torch.nn as nn
 
 logger = logging.getLogger(__name__)
 
+# ── Device ────────────────────────────────────────────────────────────
+DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+logger.info("Text classifier using device: %s", DEVICE)
+
 # ── Paths ─────────────────────────────────────────────────────────────
 _PROJECT_ROOT = Path(__file__).resolve().parents[3]
 MODELS_DIR = _PROJECT_ROOT / "models" / "text_dataset"
@@ -159,13 +163,14 @@ class TextClassifier:
             num_classes=NUM_CLASSES,
             dropout=self._LSTM_DROPOUT,
         )
-        state_dict = torch.load(str(ckpt_path), map_location="cpu", weights_only=True)
+        state_dict = torch.load(str(ckpt_path), map_location=DEVICE, weights_only=True)
         model.load_state_dict(state_dict)
+        model.to(DEVICE)
         model.eval()
 
         self._models["lstm"]  = model
         self._vocabs["lstm"]  = vocab
-        logger.info("Loaded LSTM model (vocab_size=%d) from %s", len(vocab), ckpt_path)
+        logger.info("Loaded LSTM model (vocab_size=%d) on %s from %s", len(vocab), DEVICE, ckpt_path)
         return True
 
     def _load_distilbert(self, cfg: dict) -> bool:
@@ -188,13 +193,14 @@ class TextClassifier:
         model = DistilBertForSequenceClassification.from_pretrained(
             pretrained, num_labels=NUM_CLASSES
         )
-        state_dict = torch.load(str(ckpt_path), map_location="cpu", weights_only=True)
+        state_dict = torch.load(str(ckpt_path), map_location=DEVICE, weights_only=True)
         model.load_state_dict(state_dict)
+        model.to(DEVICE)
         model.eval()
 
         self._models["distilbert"]     = model
         self._tokenizers["distilbert"] = tokenizer
-        logger.info("Loaded DistilBERT model from %s", ckpt_path)
+        logger.info("Loaded DistilBERT model on %s from %s", DEVICE, ckpt_path)
         return True
 
     def load_model(self, name: str) -> bool:
@@ -217,7 +223,7 @@ class TextClassifier:
         tokens = _tokenize(text)
         indices = [vocab.get(t, unk_idx) for t in tokens[:self._LSTM_MAX_LEN]]
         indices += [0] * (self._LSTM_MAX_LEN - len(indices))   # pad
-        tensor = torch.tensor([indices], dtype=torch.long)      # [1, 128]
+        tensor = torch.tensor([indices], dtype=torch.long).to(DEVICE)  # [1, 128]
         with torch.no_grad():
             logits = model(tensor)
             probs  = torch.softmax(logits, dim=1)[0]
@@ -233,6 +239,7 @@ class TextClassifier:
             max_length=self._DISTILBERT_MAX_LEN,
             padding="max_length",
         )
+        inputs = {k: v.to(DEVICE) for k, v in inputs.items()}
         with torch.no_grad():
             logits = model(**inputs).logits
             probs  = torch.softmax(logits, dim=1)[0]

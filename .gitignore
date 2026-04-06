@@ -9,7 +9,6 @@ build/
 *.egg
 
 # ===== Virtual Environment =====
-.venv/
 venv/
 env/
 ENV/
@@ -61,3 +60,6 @@ outputs/results/
 *.tmp
 *.bak
 _assignment_text.txt
+
+#===== report =====
+CO3133_CC01_PE_Report1_pdf/

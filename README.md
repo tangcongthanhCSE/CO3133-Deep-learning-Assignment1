@@ -112,13 +112,13 @@ pip install -r requirements.txt
 
 ## 📊 Datasets
 
-| Modality | Dataset | Classes | Training Samples |
+| Modality | Dataset | Classes | Models & Strategies |
 |----------|---------|---------|-----------------|
-| Image | *TBD* | ≥ 5 | ≥ 5,000 |
-| Text | *TBD* | ≥ 5 | ≥ 5,000 |
-| Multimodal | *TBD* | ≥ 5 | Genuine image–text pairs |
+| Image | Intel Image Classification | 6 | ResNet18 vs. ViT-B/16 |
+| Text | Emotion Dataset | 6 | BiLSTM vs. DistilBERT |
+| Multimodal | Custom Vision-Language | ≥ 5 | Zero-shot & Few-shot Inference |
 
-> **Note:** Dataset selection must satisfy the constraints in Section 3 of the assignment specification.
+> **Note:** Dataset selection satisfies the constraints in Section 3 of the assignment specification. The compiled PDF Report (`CO3133_CC01_PE_Report1_pdf/main.pdf`) is not tracked by Git (`.gitignore`) to avoid bloat, please generate it locally using `latexmk -pdf main.tex`.
 
 ---
 
@@ -133,10 +133,10 @@ pip install -r requirements.txt
 ## 📦 Deliverables
 
 - [x] GitHub Pages landing page
-- [ ] Report 1 — EDA, Dataset & DataLoader setup
-- [ ] Final Report — Full training, evaluation, comparison & extensions
-- [ ] Demo video
-- [ ] Presentation video (YouTube)
+- [x] Report 1 — EDA, Dataset & DataLoader setup
+- [x] Final Report — Full training, evaluation, comparison & extensions
+- [x] Demo video & Interactive Web Interface (`app_demo`)
+- [x] Presentation video (YouTube)
 
 ---
 
@@ -153,12 +153,11 @@ pip install -r requirements.txt
 
 ## 👥 Team
 
-| Member | Student ID |
+| Member |
 |--------|-----------|
-| *Name 1* | *ID* |
-| *Name 2* | *ID* |
-| *Name 3* | *ID* |
-| *Name 4* | *ID* |
+| **Tang Cong Thanh** | 
+| **Nguyen Huu Phuc** | 
+| **Nguyen Ho Quang Khai** |
 
 ---
 
@@ -166,4 +165,9 @@ pip install -r requirements.txt
 
 This project is for academic purposes only — HCMUT, CO3133.
 
-uvicorn extensions.app_demo.main:app --reload --port 8000
+## 💻 Web App Inference Demo
+To boot the FastAPI backend server powering the HTML Frontend Dashboard, run the following:
+```bash
+python -m uvicorn extensions.app_demo.main:app --reload --port 8000
+```
+Then navigate to `127.0.0.1:8000` or open `docs/demo/app.js` locally.

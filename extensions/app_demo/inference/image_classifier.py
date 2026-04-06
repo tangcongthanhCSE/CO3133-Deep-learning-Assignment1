@@ -25,6 +25,10 @@ from PIL import Image
 
 logger = logging.getLogger(__name__)
 
+# ── Device ────────────────────────────────────────────────────────────
+DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+logger.info("Image classifier using device: %s", DEVICE)
+
 # ── Paths ─────────────────────────────────────────────────────────────
 _PROJECT_ROOT = Path(__file__).resolve().parents[3]   # …/BTL1/
 MODELS_DIR = _PROJECT_ROOT / "models" / "image_dataset"
@@ -100,14 +104,15 @@ class ImageClassifier:
             return False
 
         model = _BUILDERS[name]()
-        checkpoint = torch.load(str(ckpt_path), map_location="cpu", weights_only=False)
+        checkpoint = torch.load(str(ckpt_path), map_location=DEVICE, weights_only=False)
         # Checkpoint saved as dict; fall back to raw state_dict if needed
         state_dict = checkpoint.get("model_state_dict", checkpoint)
         model.load_state_dict(state_dict)
+        model.to(DEVICE)
         model.eval()
 
         self._models[name] = model
-        logger.info("Loaded image model '%s' (arch=%s) from %s", name, cfg["arch"], ckpt_path)
+        logger.info("Loaded image model '%s' (arch=%s) on %s from %s", name, cfg["arch"], DEVICE, ckpt_path)
         return True
 
     def predict(self, image_bytes: bytes, model_name: str) -> dict:
@@ -129,7 +134,7 @@ class ImageClassifier:
         start = time.perf_counter()
 
         img = Image.open(io.BytesIO(image_bytes)).convert("RGB")
-        tensor = INFER_TRANSFORM(img).unsqueeze(0)   # [1, 3, 224, 224]
+        tensor = INFER_TRANSFORM(img).unsqueeze(0).to(DEVICE)   # [1, 3, 224, 224]
 
         with torch.no_grad():
             logits = model(tensor)                    # [1, 6]

@@ -71,6 +71,26 @@
                     <h3>📥 Input</h3>
                 </div>
                 <div class="card-body">
+                    <!-- Guidance -->
+                    <div class="hint-box">
+                        <div class="hint-header">
+                            <span>📋</span>
+                            <span class="hint-title">6 landscape labels (Intel Image Classification)</span>
+                        </div>
+                        <div class="hint-tags">
+                            <span class="hint-tag">🏢 buildings</span>
+                            <span class="hint-tag">🌲 forest</span>
+                            <span class="hint-tag">🧊 glacier</span>
+                            <span class="hint-tag">⛰️ mountain</span>
+                            <span class="hint-tag">🌊 sea</span>
+                            <span class="hint-tag">🏙️ street</span>
+                        </div>
+                        <p class="hint-desc">
+                            Upload a clear <strong>landscape</strong> image belonging to one of the 6 categories above.
+                            Avoid images that are too dark, obscured, or contain multiple overlapping scenes.
+                        </p>
+                    </div>
+
                     <div class="upload-zone" id="image-drop-zone">
                         <input type="file" id="image-file-input" accept="image/*" hidden>
                         <div class="upload-placeholder" id="image-upload-placeholder">
@@ -128,9 +148,32 @@
             <div class="card input-card">
                 <div class="card-header"><h3>📥 Input</h3></div>
                 <div class="card-body">
+                    <!-- Guidance -->
+                    <div class="hint-box">
+                        <div class="hint-header">
+                            <span>💡</span>
+                            <span class="hint-title">6 emotion labels (Emotion Classification)</span>
+                        </div>
+                        <div class="hint-tags">
+                            <span class="hint-tag">😢 sadness</span>
+                            <span class="hint-tag">😊 joy</span>
+                            <span class="hint-tag">❤️ love</span>
+                            <span class="hint-tag">😠 anger</span>
+                            <span class="hint-tag">😨 fear</span>
+                            <span class="hint-tag">😲 surprise</span>
+                        </div>
+                        <p class="hint-desc">Enter text clearly expressing a <strong>single emotion</strong>. For example:</p>
+                        <div class="hint-examples">
+                            <span class="hint-example">"I feel so happy and grateful for everything today!" <span class="hint-label">→ joy</span></span>
+                            <span class="hint-example">"I miss you so much, this emptiness is unbearable." <span class="hint-label">→ sadness</span></span>
+                            <span class="hint-example">"How dare they treat me this way, I am furious!" <span class="hint-label">→ anger</span></span>
+                            <span class="hint-example">"Something is lurking in the shadows, I can't breathe." <span class="hint-label">→ fear</span></span>
+                        </div>
+                    </div>
+
                     <label class="field-label">Text to Classify</label>
-                    <textarea id="text-input" class="textarea-field" rows="7"
-                        placeholder="Enter text here, e.g.: The movie was absolutely fantastic, with breathtaking visuals and a compelling storyline that kept me engaged throughout…"></textarea>
+                    <textarea id="text-input" class="textarea-field" rows="5"
+                        placeholder="Enter text expressing an emotion, e.g.: I feel so happy and grateful for everything today!"></textarea>
                     <div class="char-count"><span id="text-char-count">0</span> characters</div>
 
                     <label class="field-label">Model Architecture</label>
@@ -178,6 +221,42 @@
             <div class="card input-card">
                 <div class="card-header"><h3>📥 Input</h3></div>
                 <div class="card-body">
+                    <!-- Guidance -->
+                    <div class="hint-box">
+                        <div class="hint-header">
+                            <span>🍽️</span>
+                            <span class="hint-title">101 food items (UPMC Food-101)</span>
+                        </div>
+                        <p class="hint-desc">
+                            Upload a clear <strong>food image</strong> that takes up the majority of the frame.
+                            Avoid images with multiple dishes mixed together or taken from too far away.
+                        </p>
+                        <details class="hint-details">
+                            <summary>View some popular dishes</summary>
+                            <div class="hint-tags">
+                                <span class="hint-tag">🍕 pizza</span>
+                                <span class="hint-tag">🍣 sushi</span>
+                                <span class="hint-tag">🍔 hamburger</span>
+                                <span class="hint-tag">🍜 ramen</span>
+                                <span class="hint-tag">🥗 caesar salad</span>
+                                <span class="hint-tag">🌮 tacos</span>
+                                <span class="hint-tag">🍰 cheesecake</span>
+                                <span class="hint-tag">🍩 donuts</span>
+                                <span class="hint-tag">🍗 chicken wings</span>
+                                <span class="hint-tag">🥞 pancakes</span>
+                                <span class="hint-tag">🍦 ice cream</span>
+                                <span class="hint-tag">🥩 steak</span>
+                                <span class="hint-tag">🍜 pho</span>
+                                <span class="hint-tag">🥟 dumplings</span>
+                                <span class="hint-tag">🍤 fried rice</span>
+                            </div>
+                        </details>
+                        <p class="hint-desc" style="margin-top:8px;">
+                            <strong>Text query</strong> (zero-shot): brief description of the image, e.g.
+                            <em>"a plate of sushi"</em> or <em>"delicious pizza with cheese"</em>.
+                        </p>
+                    </div>
+
                     <div class="upload-zone" id="multi-drop-zone">
                         <input type="file" id="multi-file-input" accept="image/*" hidden>
                         <div class="upload-placeholder" id="multi-upload-placeholder">
@@ -191,7 +270,7 @@
 
                     <label class="field-label">Text Query / Prompt</label>
                     <input type="text" id="multi-text-input" class="text-input-field"
-                        placeholder="e.g.: a photo of a dog playing in a park">
+                        placeholder="e.g.: a plate of sushi, delicious pizza with cheese">
 
                     <label class="field-label">Method</label>
                     <select id="multi-model-select" class="select-field">

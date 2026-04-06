@@ -25,9 +25,13 @@ from PIL import Image
 
 logger = logging.getLogger(__name__)
 
+# ── Device ────────────────────────────────────────────────────────────
+DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+logger.info("Multimodal classifier using device: %s", DEVICE)
+
 # ── Paths ─────────────────────────────────────────────────────────────
 _PROJECT_ROOT = Path(__file__).resolve().parents[3]
-_FEW_SHOT_CLF_PATH = _PROJECT_ROOT / "Model" / "Multimodal_Model" / "food101_fewshot.pkl"
+_FEW_SHOT_CLF_PATH = _PROJECT_ROOT / "models" / "multimodal_dataset" / "food101_fewshot.pkl"
 
 MODEL_REGISTRY = {
     "clip_zero_shot": {"method": "zero_shot",  "backbone": "openai/clip-vit-base-patch32"},
@@ -94,10 +98,11 @@ class MultimodalClassifier:
         logger.info("Loading CLIP backbone '%s' …", backbone)
         self._processor  = CLIPProcessor.from_pretrained(backbone)
         self._clip_model = CLIPModel.from_pretrained(backbone)
+        self._clip_model.to(DEVICE)
         self._clip_model.eval()
 
         # Pre-compute and cache normalised text features for all 101 classes
-        logger.info("Pre-computing text features for %d classes …", len(FOOD101_CLASSES))
+        logger.info("Pre-computing text features for %d classes on %s …", len(FOOD101_CLASSES), DEVICE)
         with torch.no_grad():
             inputs = self._processor(
                 text=_ZERO_SHOT_PROMPTS,
@@ -106,10 +111,15 @@ class MultimodalClassifier:
                 truncation=True,
                 max_length=77,
             )
-            feats = self._clip_model.get_text_features(**inputs)
+            inputs = {k: v.to(DEVICE) for k, v in inputs.items()}
+            text_out = self._clip_model.text_model(
+                input_ids=inputs.get("input_ids"),
+                attention_mask=inputs.get("attention_mask"),
+            )
+            feats = self._clip_model.text_projection(text_out.pooler_output)
             self._text_features = F.normalize(feats, p=2, dim=-1)   # [101, 512]
 
-        logger.info("CLIP ready. Text features shape: %s", tuple(self._text_features.shape))
+        logger.info("CLIP ready on %s. Text features shape: %s", DEVICE, tuple(self._text_features.shape))
         return True
 
     # ── Few-shot probe ─────────────────────────────────────────────────
@@ -148,8 +158,10 @@ class MultimodalClassifier:
         """Return a normalised CLIP image feature vector [1, 512]."""
         img = Image.open(io.BytesIO(image_bytes)).convert("RGB")
         inputs = self._processor(images=img, return_tensors="pt")
+        inputs = {k: v.to(DEVICE) for k, v in inputs.items()}
         with torch.no_grad():
-            feat = self._clip_model.get_image_features(**inputs)
+            image_out = self._clip_model.vision_model(pixel_values=inputs["pixel_values"])
+            feat = self._clip_model.visual_projection(image_out.pooler_output)
         return F.normalize(feat, p=2, dim=-1)
 
     def predict(self, image_bytes: bytes, text_query: str, model_name: str) -> dict:
