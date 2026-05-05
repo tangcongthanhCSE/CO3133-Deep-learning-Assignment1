@@ -156,7 +156,6 @@ pip install -r requirements.txt
 | Member |
 |--------|-----------|
 | **Tang Cong Thanh** | 
-| **Nguyen Huu Phuc** | 
 | **Nguyen Ho Quang Khai** |
 
 ---
